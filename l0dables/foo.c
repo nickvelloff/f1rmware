@@ -22,10 +22,21 @@ Color wheel(uint8_t pos);
 // 0, 0, 1, .7, .4, .1       0, 1, 2, 3, 4, 5
 // 0, 1, .7, .4, .1. 0       1, 2, 3, 4, 5, 0
 
+// uint8_t *reverse(uint8_t *a, int n) {
+// 	int c, d;
+// 	for (c = n - 1, d = 0; c >= 0; c--, d++)
+//     b[d] = a[c];
+//
+//   for (c = 0; c < n; c++)
+//     a[c] = b[c];
+//
+// 	return a;
+// }
+
 void ram(){
-	float dim[] {0, 0, 1, 0.7, 0.4, 0.1};
+	float dim[] = {0, 0, 1, 0.7, 0.4, 0.1};
 	uint8_t pattern[24];
-	int offset = 0;
+	//int offset = 0;
 	int dx=0;
 	int dy=0;
 
@@ -45,7 +56,7 @@ void ram(){
 	lcdPrint(GLOBAL(nickname));
 	lcdDisplay();
 
-	offset=0;
+	//offset=0;
 	// first 2 leds:
 	// led 1:
 	pattern[0] = 0 * DIM;
@@ -75,7 +86,7 @@ void ram(){
 			cdim++;
 		}
 		// update the dim
-		start += start / ndim;
+		start = (start + 1) % (ndim-2);
 		ws2812_sendarray(pattern, sizeof(pattern));
 		//offset+=3;
 		if(getInput() != BTN_NONE) return;
