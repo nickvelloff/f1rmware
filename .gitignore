@@ -10,3 +10,5 @@
 .deps
 flashapp/xsvf.inc
 files/nick.lcd
+.DS_Store
+smartflash/.DS_Store

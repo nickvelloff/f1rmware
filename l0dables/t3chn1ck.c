@@ -19,61 +19,67 @@
 #include <rad1olib/setup.h>
 #include <r0ketlib/display.h>
 
+#include <stdio.h>
+#include <string.h>
 #include "usetable.h"
 
-#define DIM 0.1
+// #define ARRAY_SIZE(x) ((sizeof x) / (sizeof *x))
 
 typedef struct {
 	uint8_t r, g, b;
 } Color;
 
-Color wheel(uint8_t pos);
-
 void ram(){
 	uint8_t pattern[24];
 	int offset = 0;
+	int point = 0;
 	int dx=0;
 	int dy=0;
-
-	uint8_t color[] = {0, 0, 0};
-	uint8_t dims[] = {0.5, 0.3, 0.2, 0.1};
-
 	Color col;
+	col.r = 255;
+	col.g = 0;
+	col.b = 0;
+
+	uint8_t dims[] = {0.5, 0.3, 0.2, 0.1};
+	// int dimsSize = ARRAY_SIZE(dims);
+	int dimsSize = 4;
+	// convert to char
+	char *dimsSizeStr;
+	sprintf(dimsSizeStr, "%d", dimsSize);
+
 	SETUPgout(RGB_LED);
 
 	setExtFont(GLOBAL(nickfont));
 	setTextColor(GLOBAL(nickbg),GLOBAL(nickfg));
-	dx=DoString(0,0,GLOBAL(nickname));
+	// dx=DoString(0,0,GLOBAL(nickname));
+	dx=DoString(0,0,dimsSizeStr);
 	lcdFill(GLOBAL(nickbg));
 	dx=(RESX-dx)/2;
 	if(dx<0)
 		dx=0;
 	dy=(RESY-getFontHeight())/2;
 	lcdSetCrsr(dx,dy);
-	lcdPrint(GLOBAL(nickname));
+	// lcdPrint(GLOBAL(nickname));
+	lcdPrint(dimsSizeStr);
 	lcdDisplay();
 
-	offset=0;
-	pattern[0] = 55 * DIM;
-	pattern[1] = 0 * DIM;
-	pattern[2] = 55 * DIM;
-	pattern[3] = 55 * DIM;
-	pattern[4] = 0 * DIM;
-	pattern[5] = 55 * DIM;
-
-	int dimsSize = sizeof(dims) - 1;
-
-	Color c;
-	c = (Color) {255, 0, 0};
+	pattern[0] = 0;
+	pattern[1] = 0;
+	pattern[2] = 0;
+	pattern[3] = 0;
+	pattern[4] = 0;
+	pattern[5] = 0;
 
 	while (1) {
 		for (int i = 0; i < 6; i++) {
-			pattern[3*i+0+6] = c.g * dims[offset % dimsSize];
-			pattern[3*i+1+6] = c.r * dims[offset % dimsSize];
-			pattern[3*i+2+6] = c.b * dims[offset % dimsSize];
+			float dim = dims[(point + offset) % dimsSize];
+			pattern[3*i+1+6] = col.r * dim;
+			pattern[3*i+0+6] = col.g * dim;
+			pattern[3*i+2+6] = col.b * dim;
+			point++;
 		}
 		ws2812_sendarray(pattern, sizeof(pattern));
-		offset+=1;
+		offset++;
 		if(getInput() != BTN_NONE) return;
 		delayms_queue_plus(50, 0);
 	}
@@ -93,17 +99,3 @@ void ram(){
 	*/
 	return;
 };
-
-Color wheel(uint8_t pos) {
-	Color c;
-	if (pos < 85) {
-		c = (Color) {pos * 3, 255 - pos*3, 0};
-	} else if (pos < 170) {
-		pos -= 85;
-		c = (Color) {255 - pos*3, 0, pos * 3};
-	} else {
-		pos -= 170;
-		c = (Color) {0, pos * 3, 255 - pos*3};
-	}
-	return c;
-}
